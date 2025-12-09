@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin XINNDESAINER — Dashboard RGB</title>
+<meta name="description" content="Admin panel XINNDESAINER — atur harga, portfolio, nomor WA, dan orders.">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#030014;
+    --card:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    --muted:#98b4c8;
+    --accent1:#ff00a8;
+    --accent2:#00f0ff;
+    --accent3:#7cff00;
+    --glass: rgba(255,255,255,0.03);
+    --width:1100px;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:#eaf6ff;font-family:Inter,Arial,sans-serif;min-height:100vh}
+  .wrap{max-width:var(--width);margin:28px auto;padding:18px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .brand{font-weight:800;color:var(--accent2);font-size:20px;letter-spacing:1px}
+  .subtitle{color:var(--muted);font-size:13px}
+  /* layout */
+  .layout{display:grid;grid-template-columns:260px 1fr;gap:18px;}
+  /* SIDEBAR */
+  .sidebar{background:var(--card);padding:14px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.03);}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;color:#fff;margin-bottom:6px}
+  .nav-item:hover{background:rgba(0,0,0,0.25)}
+  .nav-item .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(90deg,var(--accent2),var(--accent1))}
+  .small-muted{font-size:13px;color:var(--muted)}
+  /* MAIN */
+  .main{min-height:400px;background:linear-gradient(180deg, rgba(5,8,20,0.6), rgba(0,0,0,0.35));padding:16px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.03)}
+  .card{background:var(--card);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-bottom:12px}
+  .row{display:flex;gap:12px;align-items:center}
+  label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+  input[type="text"], input[type="number"], textarea, select{
+    width:100%;padding:10px;border-radius:8px;border:none;background:rgba(0,0,0,0.45);color:#fff
+  }
+  button.btn{
+    padding:10px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700;
+    background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:#02111a;
+  }
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+  .danger{background:linear-gradient(90deg,#ff7b7b,#ff3b3b);color:#140000}
+  .success{background:linear-gradient(90deg,#7cff00,#00f0ff);color:#02111a}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .tiny{font-size:12px;color:var(--muted)}
+  .list{max-height:260px;overflow:auto;padding-top:6px}
+  .list-item{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);margin-bottom:8px;background:rgba(0,0,0,0.25)}
+  /* neon accents */
+  .neon-head{font-weight:800;font-size:18px;color:transparent;background:linear-gradient(90deg,var(--accent2),var(--accent1));-webkit-background-clip:text}
+  .status-badge{padding:6px 8px;border-radius:999px;background:linear-gradient(90deg,var(--accent3),#ffee00);color:#02111a;font-weight:700}
+  /* responsive */
+  @media(max-width:880px){
+    .layout{grid-template-columns:1fr;gap:12px}
+    .sidebar{order:2}
+    .main{order:1}
+  }
+  .top-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .search{padding:8px;border-radius:8px;background:rgba(0,0,0,0.35);border:none;color:#fff}
+  .small-note{font-size:12px;color:var(--muted)}
+  pre.json-box{background:rgba(0,0,0,0.5);padding:8px;border-radius:8px;color:var(--muted);overflow:auto;max-height:240px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand">XINNDESAINER — Admin</div>
+      <div class="subtitle tiny">Dashboard RGB — atur konten & pesanan</div>
+    </div>
+
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <div id="connected" class="tiny">DB: <span style="color:var(--muted)">—</span></div>
+      <div id="adminMode" class="tiny">Mode: <span style="color:var(--muted)">Anon</span></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div style="margin-bottom:10px"><strong class="neon-head">Menu</strong></div>
+
+      <div class="nav-item" onclick="showSection('dashboard')"><div class="dot"></div> Dashboard</div>
+      <div class="nav-item" onclick="showSection('prices')"><div class="dot"></div> Harga & Paket</div>
+      <div class="nav-item" onclick="showSection('webPrices')"><div class="dot"></div> Harga Website</div>
+      <div class="nav-item" onclick="showSection('portfolio')"><div class="dot"></div> Portfolio</div>
+      <div class="nav-item" onclick="showSection('orders')"><div class="dot"></div> Orders</div>
+      <div class="nav-item" onclick="showSection('settings')"><div class="dot"></div> Pengaturan WA & Toko</div>
+
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03);margin:10px 0">
+      <div style="margin-top:8px">
+        <div class="small-muted">Admin quick</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="btnLogout" class="ghost" onclick="logout()">Logout</button>
+          <button id="btnDemo" class="ghost" onclick="demoMode()">Demo</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <!-- Sections -->
+      <section id="dashboard" class="section">
+        <div class="top-bar">
+          <div>
+            <div class="neon-head">Dashboard</div>
+            <div class="small-note">Ringkasan singkat — klik menu untuk mengatur konten.</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="qSearch" class="search" placeholder="Cari order / portfolio..." oninput="filterOrders()">
+            <div id="storeStatus" class="status-badge">—</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:12px">
+          <div class="card">
+            <div class="tiny">Harga Logo (Express / Basic / Premium)</div>
+            <div id="showLogoPrices" style="margin-top:8px;font-weight:800"></div>
+            <div style="margin-top:8px"><button class="btn ghost" onclick="showSection('prices')">Edit Harga Logo</button></div>
+          </div>
+
+          <div class="card">
+            <div class="tiny">Harga Website</div>
+            <div id="showWebPrices" style="margin-top:8px;font-weight:800"></div>
+            <div style="margin-top:8px"><button class="btn ghost" onclick="showSection('webPrices')">Edit Harga Website</button></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong>Terakhir 8 Orders</strong><div class="tiny">Klik Orders untuk melihat lebih detail</div></div>
+            <div><button class="btn" onclick="showSection('orders')">Lihat Semua</button></div>
+          </div>
+          <div id="recentOrders" class="list" style="margin-top:12px"></div>
+        </div>
+
+      </section>
+
+      <!-- PRICES LOGO -->
+      <section id="prices" class="section hidden">
+        <div class="neon-head">Ubah Harga Paket Logo</div>
+        <div class="card" style="margin-top:12px">
+          <div class="grid-2">
+            <div>
+              <label>Express (Rp)</label>
+              <input id="priceLogoExp" type="number" placeholder="2000">
+            </div>
+            <div>
+              <label>Basic (Rp)</label>
+              <input id="priceLogoBasic" type="number" placeholder="5000">
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <label>Premium (Rp)</label>
+            <input id="priceLogoPrem" type="number" placeholder="7000">
+          </div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button class="btn" onclick="saveLogoPrices()">Simpan Harga Logo</button>
+            <button class="ghost" onclick="resetLogoPrices()">Reset Default</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRICES WEB -->
+      <section id="webPrices" class="section hidden">
+        <div class="neon-head">Ubah Harga Paket Website</div>
+        <div class="card" style="margin-top:12px">
+          <div class="grid-2">
+            <div>
+              <label>Landing Page (Rp)</label>
+              <input id="priceWebLanding" type="number" placeholder="20000">
+            </div>
+            <div>
+              <label>Toko Online (Rp)</label>
+              <input id="priceWebToko" type="number" placeholder="50000">
+            </div>
+          </div>
+          <div class="grid-2" style="margin-top:12px">
+            <div>
+              <label>Portfolio (Rp)</label>
+              <input id="priceWebPort" type="number" placeholder="30000">
+            </div>
+            <div>
+              <label>Company Profile (Rp)</label>
+              <input id="priceWebComp" type="number" placeholder="45000">
+            </div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button class="btn" onclick="saveWebPrices()">Simpan Harga Website</button>
+            <button class="ghost" onclick="resetWebPrices()">Reset Default</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PORTFOLIO -->
+      <section id="portfolio" class="section hidden">
+        <div class="neon-head">Kelola Portfolio</div>
+        <div class="card" style="margin-top:12px">
+          <label>Tambah URL Gambar</label>
+          <input id="portfolioUrl" type="text" placeholder="https://...jpg">
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button class="btn" onclick="addPortfolio()">Tambah</button>
+            <button class="ghost" onclick="clearPortfolio()">Hapus Semua</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <strong>Daftar Portfolio</strong>
+          <div id="portfolioList" class="list" style="margin-top:8px"></div>
+        </div>
+      </section>
+
+      <!-- ORDERS -->
+      <section id="orders" class="section hidden">
+        <div class="neon-head">Orders Masuk</div>
+
+        <div class="card" style="margin-top:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong>Semua Orders</strong><div class="tiny">Order logo/web/design</div></div>
+            <div style="display:flex;gap:8px">
+              <button class="ghost" onclick="exportOrders()">Export JSON</button>
+              <button class="ghost" onclick="clearAllOrders()">Hapus Semua</button>
+            </div>
+          </div>
+
+          <div id="ordersList" class="list" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settings" class="section hidden">
+        <div class="neon-head">Pengaturan Toko & WA</div>
+
+        <div class="card" style="margin-top:12px">
+          <label>Nomor WhatsApp (tanpa +, contoh: 62878...)</label>
+          <input id="waNumber" type="text" placeholder="6287867162459">
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button class="btn" onclick="saveWA()">Simpan Nomor WA</button>
+            <button class="ghost" onclick="testWA()">Test WA</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <label>Status Toko</label>
+          <div style="display:flex;gap:8px">
+            <button class="success" onclick="setStoreStatus('1')">Buka</button>
+            <button class="danger" onclick="setStoreStatus('0')">Tutup</button>
+          </div>
+          <div style="margin-top:8px" class="tiny">Nilai saat ini: <span id="storeValue">-</span></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+/* =======================
+   Firebase config (sama dgn web utama)
+   ======================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyB4L9CUFN049AytK8b3xxT-qC7WPVcagOw",
+  authDomain: "xinndesainer-web.firebaseapp.com",
+  databaseURL: "https://xinndesainer-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "xinndesainer-web",
+  storageBucket: "xinndesainer-web.firebasestorage.app",
+  messagingSenderId: "149928716168",
+  appId: "1:149928716168:web:80e99e60fb8531f0e4bc3d",
+  measurementId: "G-1GWM4KV6T2"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* ========== UTIL ========== */
+function $(id){ return document.getElementById(id) }
+function showSection(key){
+  document.querySelectorAll('.section').forEach(s=>s.classList.add('hidden'));
+  const el = $(key);
+  if(el) el.classList.remove('hidden');
+  // update URL hash
+  history.replaceState(null, '', '#'+key);
+}
+
+/* ========== AUTH (simple demo) ========== */
+const ADMIN_USER = "Admin", ADMIN_PASS = "Admin123";
+function demoMode(){
+  localStorage.setItem('xin_admin','0');
+  initAdmin(true);
+}
+function logout(){
+  localStorage.removeItem('xin_admin');
+  location.reload();
+}
+function initAdmin(fromDemo){
+  $('adminMode').textContent = fromDemo ? 'Demo' : 'Admin';
+  // show dashboard by default
+  showSection('dashboard');
+  startListeners();
+}
+
+/* if previously set */
+if(localStorage.getItem('xin_admin')){
+  const isDemo = localStorage.getItem('xin_admin') === '0';
+  initAdmin(isDemo);
+} else {
+  // ask simple login prompt (client-side)
+  setTimeout(()=>{
+    const proceed = confirm("Masuk sebagai admin? (OK = login demo, Cancel = tetap anonymous)");
+    if(proceed){ localStorage.setItem('xin_admin','0'); initAdmin(true); }
+  },300);
+}
+
+/* ========== LISTENERS & DATA SYNC ========== */
+let currentWA = "6287867162459";
+
+function startListeners(){
+  // connection state
+  db.ref('.info/connected').on('value', snap=>{
+    const on = !!snap.val();
+    $('connected').querySelector('span').textContent = on ? 'online' : 'offline';
+  });
+
+  // logo prices
+  db.ref('web/harga').on('value', snap=>{
+    const h = snap.val() || {express:"2000", basic:"5000", premium:"7000"};
+    $('priceLogoExp').value = h.express || '';
+    $('priceLogoBasic').value = h.basic || '';
+    $('priceLogoPrem').value = h.premium || '';
+    $('showLogoPrices').textContent = `Express: Rp ${h.express} • Basic: Rp ${h.basic} • Premium: Rp ${h.premium}`;
+  });
+
+  // web prices
+  db.ref('web/hargaWeb').on('value', snap=>{
+    const w = snap.val() || {landing:"20000", toko:"50000", portfolio:"30000", company:"45000"};
+    $('priceWebLanding').value = w.landing || '';
+    $('priceWebToko').value = w.toko || '';
+    $('priceWebPort').value = w.portfolio || '';
+    $('priceWebComp').value = w.company || '';
+    $('showWebPrices').textContent = `Landing:${w.landing} • Toko:${w.toko} • Port:${w.portfolio} • Comp:${w.company}`;
+  });
+
+  // nomor WA
+  db.ref('web/nomorWA').on('value', snap=>{
+    currentWA = snap.val() || currentWA;
+    $('waNumber').value = currentWA;
+  });
+
+  // portfolio
+  db.ref('web/portfolio').on('value', snap=>{
+    const data = snap.val() || {};
+    const dom = $('portfolioList'); dom.innerHTML = '';
+    const keys = Object.keys(data || {});
+    if(keys.length === 0){ dom.innerHTML = '<div class="tiny" style="color:var(--muted)">Belum ada portfolio</div>'; return; }
+    keys.forEach(k=>{
+      const url = data[k];
+      const item = document.createElement('div'); item.className = 'list-item';
+      item.innerHTML = `<div style="display:flex;gap:10px;align-items:center">
+        <img src="${url}" width="60" style="border-radius:6px;object-fit:cover">
+        <div style="flex:1;word-break:break-all;color:var(--muted)">${url}</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="ghost" onclick="removePortfolio('${k}')">Hapus</button>
+          <a class="ghost" target="_blank" href="${url}">Buka</a>
+        </div>
+      </div>`;
+      dom.appendChild(item);
+    });
+  });
+
+  // orders (all)
+  db.ref('orders').on('value', snap=>{
+    renderOrders(snap.val());
+  });
+  db.ref('ordersWebsite').on('value', snap=>{
+    // website orders could be separate; we merge with orders view
+    // we already listen to 'orders' which main web used; but include ordersWebsite too
+    renderOrdersWebsite(snap.val());
+  });
+
+  // status toko
+  db.ref('web/statusToko').on('value', snap=>{
+    const v = snap.exists() ? snap.val() : '1';
+    $('storeStatus').textContent = v === '1' ? 'BUKA' : 'TUTUP';
+    $('storeValue').textContent = v;
+  });
+}
+
+/* ========== ORDERS RENDER ========== */
+function renderOrders(data){
+  const list = $('ordersList'); list.innerHTML = '';
+  const recent = $('recentOrders'); recent.innerHTML = '';
+  const all = data || {};
+  const ids = Object.keys(all).reverse();
+  if(ids.length===0){ list.innerHTML = '<div class="tiny" style="color:var(--muted)">Belum ada order</div>'; recent.innerHTML = '<div class="tiny" style="color:var(--muted)">Belum ada order</div>'; return; }
+
+  let count = 0;
+  ids.forEach(id=>{
+    const o = all[id];
+    const el = document.createElement('div'); el.className='list-item';
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <b>${o.nama || o.brand || '—'}</b>
+        <div class="tiny" style="margin-top:6px">${o.type || 'order'} ${o.paket ? '• '+o.paket : ''}</div>
+        <div class="tiny" style="color:var(--muted);margin-top:6px">${o.detail || o.fitur || o.catatan || ''}</div>
+        <div class="tiny" style="color:var(--muted);margin-top:6px">Waktu: ${o.waktu ? new Date(o.waktu).toLocaleString() : '-'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="ghost" onclick="openOrderDetail('${id}')">Detail</button>
+        <button class="danger" onclick="deleteOrder('${id}')">Hapus</button>
+      </div>
+    </div>`;
+    list.appendChild(el);
+
+    // recent 8
+    if(count < 8){
+      const r = document.createElement('div'); r.className='list-item';
+      r.innerHTML = `<div><b>${o.nama||o.brand||'—'}</b><div class="tiny">${o.type||''} • ${new Date(o.waktu).toLocaleString()}</div></div>`;
+      recent.appendChild(r);
+      count++;
+    }
+  });
+}
+
+function renderOrdersWebsite(data){
+  if(!data) return;
+  // merge into orders list area as website orders too
+  const list = $('ordersList');
+  const all = data || {};
+  const ids = Object.keys(all).reverse();
+  ids.forEach(id=>{
+    const o = all[id];
+    const el = document.createElement('div'); el.className='list-item';
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <b>${o.nama || o.brand || '—'}</b>
+        <div class="tiny" style="margin-top:6px">WEBSITE • ${o.paket || ''}</div>
+        <div class="tiny" style="color:var(--muted);margin-top:6px">${o.fitur || o.catatan || ''}</div>
+        <div class="tiny" style="color:var(--muted);margin-top:6px">Waktu: ${o.waktu ? new Date(o.waktu).toLocaleString() : '-'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="ghost" onclick="openOrderWebsiteDetail('${id}')">Detail</button>
+        <button class="danger" onclick="deleteOrderWebsite('${id}')">Hapus</button>
+      </div>
+    </div>`;
+    list.appendChild(el);
+  });
+}
+
+/* ========== ORDER ACTIONS ========== */
+function openOrderDetail(id){
+  db.ref('orders/'+id).once('value').then(snap=>{
+    const o = snap.val();
+    alert(JSON.stringify(o,null,2));
+  });
+}
+function deleteOrder(id){
+  if(!confirm('Hapus order ini?')) return;
+  db.ref('orders/'+id).remove().then(()=>alert('Dihapus'));
+}
+
+/* website order detail */
+function openOrderWebsiteDetail(id){
+  db.ref('ordersWebsite/'+id).once('value').then(snap=>{
+    const o = snap.val();
+    alert(JSON.stringify(o,null,2));
+  });
+}
+function deleteOrderWebsite(id){
+  if(!confirm('Hapus order website ini?')) return;
+  db.ref('ordersWebsite/'+id).remove().then(()=>alert('Dihapus'));
+}
+
+/* ========== PRICES: LOGO ========== */
+function saveLogoPrices(){
+  if(isDemo()) return alert('Demo mode - tidak bisa menyimpan');
+  const exp = $('priceLogoExp').value || '2000';
+  const basic = $('priceLogoBasic').value || '5000';
+  const prem = $('priceLogoPrem').value || '7000';
+  db.ref('web/harga').set({express: String(exp), basic: String(basic), premium: String(prem)})
+    .then(()=>alert('Harga logo disimpan'));
+}
+function resetLogoPrices(){
+  if(isDemo()) return alert('Demo mode');
+  db.ref('web/harga').set({express:"2000", basic:"5000", premium:"7000"}).then(()=>alert('Harga logo direset'));
+}
+
+/* ========== PRICES: WEB ========== */
+function saveWebPrices(){
+  if(isDemo()) return alert('Demo mode - tidak bisa menyimpan');
+  const landing = $('priceWebLanding').value || '20000';
+  const toko = $('priceWebToko').value || '50000';
+  const port = $('priceWebPort').value || '30000';
+  const comp = $('priceWebComp').value || '45000';
+  db.ref('web/hargaWeb').set({landing:String(landing), toko:String(toko), portfolio:String(port), company:String(comp)})
+    .then(()=>alert('Harga website disimpan'));
+}
+function resetWebPrices(){
+  if(isDemo()) return alert('Demo mode');
+  db.ref('web/hargaWeb').set({landing:"20000", toko:"50000", portfolio:"30000", company:"45000"}).then(()=>alert('Harga website direset'));
+}
+
+/* ========== PORTFOLIO ========== */
+function addPortfolio(){
+  if(isDemo()) return alert('Demo mode - tidak bisa menyimpan');
+  const url = $('portfolioUrl').value.trim();
+  if(!url) return alert('Masukkan URL gambar');
+  db.ref('web/portfolio').push(url).then(()=>{ $('portfolioUrl').value=''; alert('Portfolio ditambahkan'); });
+}
+function removePortfolio(key){
+  if(isDemo()) return alert('Demo mode');
+  if(!confirm('Hapus portfolio ini?')) return;
+  db.ref('web/portfolio/'+key).remove().then(()=>alert('Dihapus'));
+}
+function clearPortfolio(){
+  if(isDemo()) return alert('Demo mode');
+  if(!confirm('Hapus semua portfolio?')) return;
+  db.ref('web/portfolio').remove().then(()=>alert('Semua portfolio dihapus'));
+}
+
+/* ========== ORDERS EXPORT / CLEAR ========== */
+function exportOrders(){
+  // merge both nodes for export
+  Promise.all([db.ref('orders').once('value'), db.ref('ordersWebsite').once('value')]).then(([a,b])=>{
+    const out = { orders: a.val() || {}, ordersWebsite: b.val() || {} };
+    const blob = new Blob([JSON.stringify(out,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const ael = document.createElement('a'); ael.href = url; ael.download = 'xinndesainer_orders.json'; ael.click();
+    URL.revokeObjectURL(url);
+  });
+}
+function clearAllOrders(){
+  if(isDemo()) return alert('Demo mode');
+  if(!confirm('Hapus semua orders? Ini tidak bisa dibatalkan.')) return;
+  // remove both nodes
+  Promise.all([db.ref('orders').remove(), db.ref('ordersWebsite').remove()]).then(()=>alert('Semua order dihapus'));
+}
+
+/* ========== SETTINGS: WA & STORE ========== */
+function saveWA(){
+  if(isDemo()) return alert('Demo mode - tidak bisa menyimpan');
+  const v = $('waNumber').value.trim();
+  if(!v) return alert('Masukkan nomor WA');
+  db.ref('web/nomorWA').set(v).then(()=>alert('Nomor WA disimpan'));
+}
+function testWA(){
+  const v = $('waNumber').value.trim() || currentWA;
+  window.open('https://wa.me/' + v, '_blank');
+}
+function setStoreStatus(v){
+  if(isDemo()) return alert('Demo mode - tidak bisa menyimpan');
+  db.ref('web/statusToko').set(String(v)).then(()=>alert('Status toko diperbarui'));
+}
+
+/* ========== HELPERS ========== */
+function isDemo(){ return localStorage.getItem('xin_admin') === '0'; }
+
+/* ========== FILTER ORDERS ========== */
+function filterOrders(){
+  const q = $('qSearch').value.toLowerCase();
+  const items = document.querySelectorAll('#ordersList .list-item');
+  items.forEach(it=>{
+    if(!q){ it.style.display='block'; return; }
+    const text = it.textContent.toLowerCase();
+    it.style.display = text.includes(q) ? 'block' : 'none';
+  });
+}
+
+/* ========== small UI helpers ========== */
+function deleteOrder(id){ if(isDemo()) return alert('Demo'); if(!confirm('Hapus order?')) return; db.ref('orders/'+id).remove().then(()=>alert('Dihapus')); }
+
+/* ========== ordersWebsite CRUD duplicates (already above) ========== */
+// deleteOrderWebsite implemented earlier
+
+/* ========== init UI: navigate to section if hash present ========== */
+window.addEventListener('load', ()=>{
+  const hash = location.hash.replace('#','');
+  if(hash && document.getElementById(hash)) showSection(hash);
+  // ensure listeners active if admin already set
+  if(localStorage.getItem('xin_admin')) startListeners();
+});
+
+</script>
+</body>
+</html>
